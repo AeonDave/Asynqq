@@ -16,6 +16,9 @@ class Subject(ABC):
         if observer in self._observers:
             self._observers.remove(observer)
 
+    def detach_all(self) -> None:
+        self._observers.clear()
+
     def event_notify(self, event: Event) -> None:
         for observer in self._observers:
             observer.event_update(self, event)

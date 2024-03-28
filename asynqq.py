@@ -1,6 +1,7 @@
 import functools
 import inspect
 from queue import Queue
+from typing import Callable
 
 from event.event import EventType, Event
 from event.observer import Observer
@@ -30,9 +31,16 @@ class Asynqq(Observer):
     def get_qq_size(self):
         return self.qq.qsize()
 
-    def add(self, tqq: Tasqq):
+    def add(self, func: Callable, idx: str = None, **kwargs) -> Tasqq:
+        idx = str(get_short_id() if idx is None else idx)
+        tsk = self.task_impl(idx=idx, func=func, **kwargs)
+        return self._add(tsk)
+
+    def _add(self, tqq: Tasqq) -> Tasqq:
+        tqq.attach(self)
         self.logger.info(f"Adding task {tqq.idx} to queue")
         self.qq.put(tqq)
+        return tqq
 
     def event_update(self, subject, event: Event) -> None:
         if event.e_type in {EventType.START, EventType.STOP}:
@@ -48,14 +56,11 @@ class Asynqq(Observer):
             def wrapper(*args, **kwargs):
                 idx = str(get_short_id() if tasqq_id is None else tasqq_id)
                 method = func.__get__(args[0], type(args[0])) if 'self' in inspect.signature(func).parameters else func
-                tsk = self.task_impl(idx=idx, func=method, **kwargs)
-                tsk.attach(self)
-                self.add(tsk)
-                return tsk
+                return self.add(method, idx, **kwargs)
 
             async def qq_wrapper(*args, **kwargs):
                 w = wrapper(self, *args, **kwargs)
-                r = await w.qq(**kwargs)
+                r = await w.qq()
                 return r
 
             wrapper.qq = qq_wrapper

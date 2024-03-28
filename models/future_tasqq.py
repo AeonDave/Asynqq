@@ -1,5 +1,7 @@
 import asyncio
+from asyncio import Future
 from concurrent.futures import ThreadPoolExecutor
+from typing import Callable, Optional
 
 from event.event import EventType, Event
 from models.tasqq import Tasqq
@@ -23,18 +25,18 @@ class FutureTasqq(Tasqq):
         :param kwargs: Additional keyword arguments.
         """
         super().__init__(idx, **kwargs)
-        self.executor = executor
-        self.func = func
-        self.future = None
+        self.executor: ThreadPoolExecutor = executor
+        self.func: Callable = func
+        self.future_executor: Optional[Future] = None
         self.completed = False
 
     def is_running(self) -> bool:
         """
-        Check if the task is currently running.
+        Check if the task is running.
 
         :return: True if the task is running, False otherwise.
         """
-        return self.future and not self.future.done()
+        return self.future_executor is not None and not self.future_executor.done()
 
     def is_completed(self) -> bool:
         """
@@ -49,7 +51,7 @@ class FutureTasqq(Tasqq):
         Start the task by submitting it to the executor.
         Also, notify the start event.
         """
-        self.future = self.executor.submit(self.run)
+        self.future_executor = self.executor.submit(self.run)
         self.event_notify(
             Event(
                 self.idx,
@@ -64,8 +66,9 @@ class FutureTasqq(Tasqq):
         Stop the task if it is running.
         Also, notify the stop event.
         """
-        if self.future and not self.future.done():
-            self.future.cancel()
+        if self.future_executor and not self.future_executor.done():
+            self.future_executor.cancel()
+        del self.future_executor
         self.completed = True
         self.event_notify(
             Event(
@@ -84,8 +87,7 @@ class FutureTasqq(Tasqq):
         """
         return self.result
 
-    async def qq(self, **kwargs):
-        self.kwargs = kwargs
+    async def qq(self):
         while not self.completed:
             await asyncio.sleep(0.1)
         return self.result
@@ -132,3 +134,4 @@ class FutureTasqq(Tasqq):
             )
         finally:
             self.completed = True
+            self.detach_all()

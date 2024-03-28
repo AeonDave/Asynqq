@@ -1,5 +1,5 @@
-import base64
-import os
+import random
+import string
 import types
 
 
@@ -8,5 +8,6 @@ def is_primitive(val):
     return isinstance(val, primitive)
 
 
-def get_short_id(length=10):
-    return base64.b64encode(os.urandom(32))[:length].decode('utf-8')
+def get_short_id(prefix='', length=10) -> str:
+    chars = string.ascii_letters + string.digits
+    return prefix + ''.join(random.choices(chars, k=length))
