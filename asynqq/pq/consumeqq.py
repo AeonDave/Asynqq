@@ -3,7 +3,7 @@ from queue import Queue
 from threading import Thread
 
 from asynqq.event.event import Event, EventType
-from logger import get_logger
+from asynqq.utils.logger import get_logger
 from asynqq.models.tasqq import Tasqq
 
 

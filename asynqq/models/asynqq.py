@@ -9,7 +9,7 @@ from asynqq.models.future_tasqq import FutureTasqq
 from asynqq.models.tasqq import Tasqq
 from asynqq.pq.consumeqq import Consumeqq
 from asynqq.utils.data_utils import get_short_id
-from logger import get_logger
+from asynqq.utils.logger import get_logger
 
 
 class Asynqq(Observer):
