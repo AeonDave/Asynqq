@@ -3,13 +3,13 @@ import inspect
 from queue import Queue
 from typing import Callable
 
-from event.event import EventType, Event
-from event.observer import Observer
+from asynqq.event.event import EventType, Event
+from asynqq.event.observer import Observer
+from asynqq.models.future_tasqq import FutureTasqq
+from asynqq.models.tasqq import Tasqq
+from asynqq.pq.consumeqq import Consumeqq
+from asynqq.utils.data_utils import get_short_id
 from logger import get_logger
-from models.future_tasqq import FutureTasqq
-from models.tasqq import Tasqq
-from pq.consumeqq import Consumeqq
-from utils.data_utils import get_short_id
 
 
 class Asynqq(Observer):

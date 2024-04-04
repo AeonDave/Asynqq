@@ -1,8 +1,8 @@
 import datetime
 from abc import abstractmethod, ABC
 
-from event.event import Event, EventType
-from event.subject import Subject
+from asynqq.event.event import Event, EventType
+from asynqq.event.subject import Subject
 
 
 class Tasqq(Subject, ABC):

@@ -2,9 +2,9 @@ from logging import Logger
 from queue import Queue
 from threading import Thread
 
-from event.event import Event, EventType
+from asynqq.event.event import Event, EventType
 from logger import get_logger
-from models.tasqq import Tasqq
+from asynqq.models.tasqq import Tasqq
 
 
 class Consumeqq(Thread):

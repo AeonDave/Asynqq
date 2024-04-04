@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 
-from event.event import Event
+from asynqq.event.event import Event
 
 
 class Subject(ABC):

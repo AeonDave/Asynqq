@@ -3,8 +3,8 @@ from asyncio import Future
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 
-from event.event import EventType, Event
-from models.tasqq import Tasqq
+from asynqq.event.event import EventType, Event
+from asynqq.models.tasqq import Tasqq
 
 # Create a ThreadPoolExecutor instance
 executor = ThreadPoolExecutor()

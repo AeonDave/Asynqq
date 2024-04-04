@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from event.event import Event
+from asynqq.event.event import Event
 
 
 class Observer(ABC):

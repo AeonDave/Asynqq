@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "asynqq"
-version = "0.0.1"
+version = "0.0.2"
 description = ""
 authors = ["AeonDave"]
 readme = "README.md"
+packages = [{ include = "asynqq" }]
 
 [tool.poetry.dependencies]
-python = "^3"
+python = "^3.9"
 
 
 [build-system]
