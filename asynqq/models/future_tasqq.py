@@ -109,11 +109,11 @@ class FutureTasqq(Tasqq):
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                 try:
-                    self.result = loop.run_until_complete(self.func(**self.kwargs))
+                    self.result = loop.run_until_complete(self.func(idx=self.idx, **self.kwargs))
                 finally:
                     loop.close()
             else:
-                self.result = self.func(**self.kwargs)
+                self.result = self.func(idx=self.idx, **self.kwargs)
             self.event_notify(
                 Event(
                     self.idx,
