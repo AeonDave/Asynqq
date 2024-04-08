@@ -42,7 +42,7 @@ class TestAsynqq(Observer, unittest.IsolatedAsyncioTestCase):
                 return f'Started at {dd} and ended at {datetime.datetime.now().isoformat()}'
 
         @asynqq.task(tasqq_id='3')
-        def long_duration_function(idx, duration):
+        def long_duration_function(duration):
             dd = datetime.datetime.now().isoformat()
             time.sleep(duration)
             return f'Started at {dd} and ended at {datetime.datetime.now().isoformat()}'

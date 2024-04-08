@@ -16,7 +16,7 @@ class FutureTasqq(Tasqq):
     It uses a ThreadPoolExecutor to run the task in a separate thread.
     """
 
-    def __init__(self, idx, func, **kwargs):
+    def __init__(self, func, **kwargs):
         """
         Initialize a FutureTasqq instance.
 
@@ -24,7 +24,7 @@ class FutureTasqq(Tasqq):
         :param func: The function to be executed by the task.
         :param kwargs: Additional keyword arguments.
         """
-        super().__init__(idx, **kwargs)
+        super().__init__(**kwargs)
         self.executor: ThreadPoolExecutor = executor
         self.func: Callable = func
         self.future_executor: Optional[Future] = None
@@ -109,11 +109,11 @@ class FutureTasqq(Tasqq):
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                 try:
-                    self.result = loop.run_until_complete(self.func(idx=self.idx, **self.kwargs))
+                    self.result = loop.run_until_complete(self.func(**self.kwargs))
                 finally:
                     loop.close()
             else:
-                self.result = self.func(idx=self.idx, **self.kwargs)
+                self.result = self.func(**self.kwargs)
             self.event_notify(
                 Event(
                     self.idx,
