@@ -3,8 +3,8 @@ from queue import Queue
 from threading import Thread
 
 from asynqq.event.event import Event, EventType
-from asynqq.utils.logger import get_logger
 from asynqq.models.tasqq import Tasqq
+from asynqq.utils.logger import get_logger
 
 
 class Consumeqq(Thread):
@@ -18,9 +18,8 @@ class Consumeqq(Thread):
     def run(self):
         self.logger.info("Starting Asynqq consumer")
         while not self._stop:
-            if self.max_workers > 0:
-                if self.queue.qsize() >= self.max_workers:
-                    continue
+            if 0 < self.max_workers <= self.queue.qsize():
+                continue
             tqq: Tasqq = self.queue.get()
             if tqq is None:
                 continue
