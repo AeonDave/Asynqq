@@ -22,7 +22,7 @@ class TestAsynqq(Observer, unittest.IsolatedAsyncioTestCase):
         print('event')
 
     async def test_asynqq_all_tasks_complete(self):
-        asynqq = Asynqq(max_workers=10)
+        asynqq = Asynqq(max_workers=10, log_level='DEBUG')
 
         callback = Callback('1')
         callback.attach(self)

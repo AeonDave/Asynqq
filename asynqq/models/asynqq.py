@@ -1,6 +1,5 @@
 import functools
 import inspect
-from queue import Queue
 from typing import Callable
 
 from asynqq.event.event import EventType, Event
@@ -15,10 +14,10 @@ from asynqq.utils.logger import get_logger
 
 class Asynqq(Observer):
 
-    def __init__(self, max_workers=0, task_impl=FutureTasqq):
+    def __init__(self, max_workers=0, task_impl=FutureTasqq, log_level='INFO'):
         self._logger = get_logger(__name__)
-        self._qq: Queue[Tasqq] = Queue()
-        self._consumer_thread = Consumeqq(self._qq, max_workers=max_workers)
+        self._logger.setLevel(log_level)
+        self._consumer_thread = Consumeqq(max_workers=max_workers)
         self._task_impl = task_impl
         self._callbacks: dict[str, Subject] = {}
         self.start()
@@ -28,35 +27,35 @@ class Asynqq(Observer):
 
     def stop(self):
         self._consumer_thread.stop()
-        self._qq.queue.clear()
+        self._consumer_thread.clear_queue()
 
     def get_qq_size(self):
-        return self._qq.qsize()
+        return self._consumer_thread.get_queue_size()
 
     def add(self, func: Callable, idx: str = None, callback: Subject = None, **kwargs) -> Tasqq:
         idx = str(get_short_id() if idx is None else idx)
-        tsk = self._task_impl(idx=idx, func=func, **kwargs)
+        tqq = self._task_impl(idx=idx, func=func, **kwargs)
         if callback:
             self._callbacks[idx] = callback
-        return self._add(tsk)
-
-    def _add(self, tqq: Tasqq) -> Tasqq:
         tqq.attach(self)
-        self._logger.info(f"Adding task {tqq.idx} to queue")
-        self._qq.put(tqq)
+        self._logger.debug(f"Adding task {tqq.idx} to queue")
+        self._consumer_thread.add(tqq)
         return tqq
+
+    def remove(self, idx: str) -> None:
+        self._consumer_thread.remove(idx)
 
     def event_update(self, subject, event: Event) -> None:
         if event.idx in self._callbacks:
             self._callbacks[event.idx].event_notify(event)
         if event.e_type in {EventType.START, EventType.STOP}:
-            self._logger.info(f"{event.e_type.name} task with id {event.idx}")
+            self._logger.debug(f"{event.e_type.name} task with id {event.idx}")
         elif event.e_type == EventType.ERROR:
             self._logger.error(f"{event.e_type.name} on task {event.idx}: {event.data}")
             if event.idx in self._callbacks:
                 del self._callbacks[event.idx]
         elif event.e_type == EventType.RESULT:
-            self._logger.info(f"{event.e_type.name} task {event.idx} completed")
+            self._logger.debug(f"{event.e_type.name} task {event.idx} completed")
             if event.idx in self._callbacks:
                 del self._callbacks[event.idx]
 
