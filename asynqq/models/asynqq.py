@@ -48,8 +48,12 @@ class Asynqq(Observer):
     def event_update(self, subject, event: Event) -> None:
         if event.idx in self._callbacks:
             self._callbacks[event.idx].event_notify(event)
-        if event.e_type in {EventType.START, EventType.STOP}:
+        if event.e_type in EventType.START:
             self._logger.debug(f"{event.e_type.name} task with id {event.idx}")
+        elif event.e_type == EventType.STOP:
+            self._logger.debug(f"{event.e_type.name} task with id {event.idx}")
+            if event.idx in self._callbacks:
+                del self._callbacks[event.idx]
         elif event.e_type == EventType.ERROR:
             self._logger.error(f"{event.e_type.name} on task {event.idx}: {event.data}")
             if event.idx in self._callbacks:
