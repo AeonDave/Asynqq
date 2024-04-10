@@ -74,7 +74,7 @@ class FutureTasqq(Tasqq):
             Event(
                 self.idx,
                 EventType.STOP,
-                None,
+                self.errors,
                 **self.kwargs
             )
         )
@@ -128,7 +128,7 @@ class FutureTasqq(Tasqq):
                 Event(
                     self.idx,
                     EventType.ERROR,
-                    ex,
+                    self.errors,
                     **self.kwargs
                 )
             )
