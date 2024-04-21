@@ -13,8 +13,14 @@ from asynqq.utils.logger import get_logger
 
 
 class Asynqq(Observer):
+    """
+    Asynqq class manages tasks in a queue.
+    """
 
     def __init__(self, max_workers=0, task_impl=FutureTasqq, log_level='INFO'):
+        """
+        Initialize Asynqq with a logger, a consumer thread, a task implementation and a dictionary of callbacks.
+        """
         self._logger = get_logger(__name__)
         self._logger.setLevel(log_level)
         self._consumer_thread = Consumeqq(max_workers=max_workers)
@@ -23,16 +29,28 @@ class Asynqq(Observer):
         self.start()
 
     def start(self):
+        """
+        Start the consumer thread.
+        """
         self._consumer_thread.start()
 
     def stop(self):
+        """
+        Stop the consumer thread and clear the queue.
+        """
         self._consumer_thread.stop()
         self._consumer_thread.clear_queue()
 
     def get_qq_size(self):
+        """
+        Get the size of the queue in the consumer thread.
+        """
         return self._consumer_thread.get_queue_size()
 
     def add(self, func: Callable, idx: str = None, callback: Subject = None, **kwargs) -> Tasqq:
+        """
+        Add a task to the queue in the consumer thread.
+        """
         idx = str(get_short_id() if idx is None else idx)
         tqq = self._task_impl(idx=idx, func=func, **kwargs)
         if callback:
@@ -43,9 +61,15 @@ class Asynqq(Observer):
         return tqq
 
     def remove(self, idx: str) -> None:
+        """
+        Remove a task from the queue in the consumer thread.
+        """
         self._consumer_thread.remove(idx)
 
     def event_update(self, subject, event: Event) -> None:
+        """
+        Update the event and log the event type and task id.
+        """
         if event.idx in self._callbacks:
             self._callbacks[event.idx].event_notify(event)
         if event.e_type == EventType.START:
@@ -64,6 +88,9 @@ class Asynqq(Observer):
                 del self._callbacks[event.idx]
 
     def task(self, tasqq_id: str = None, callback: Subject = None):
+        """
+        Decorator to add a task to the queue in the consumer thread.
+        """
         def decorator(func):
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
