@@ -46,7 +46,7 @@ class FutureTasqq(Tasqq):
         """
         return self.completed
 
-    def start(self):
+    def start(self) -> None:
         """
         Start the task by submitting it to the executor.
         Also, notify the start event.
@@ -61,7 +61,7 @@ class FutureTasqq(Tasqq):
             )
         )
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Stop the task if it is running.
         Also, notify the stop event.
@@ -87,12 +87,12 @@ class FutureTasqq(Tasqq):
         """
         return self.result
 
-    async def qq(self):
+    async def qq(self) -> object:
         while not self.completed:
             await asyncio.sleep(0.1)
         return self.result
 
-    def run(self):
+    def run(self) -> None:
         """
         Run the task and set the result.
         If the task function is a coroutine, it is run in an asyncio event loop.
@@ -106,6 +106,7 @@ class FutureTasqq(Tasqq):
                     if loop.is_closed():
                         raise RuntimeError('loop is closed')
                 except RuntimeError as ex:
+                    self._logger.debug(f'{ex}, creating a new event loop')
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                 try:

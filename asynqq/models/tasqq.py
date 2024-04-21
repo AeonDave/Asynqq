@@ -1,8 +1,10 @@
 import datetime
 from abc import abstractmethod, ABC
+from logging import Logger
 
 from asynqq.event.event import Event, EventType
 from asynqq.event.subject import Subject
+from asynqq.utils.logger import get_logger
 
 
 class Tasqq(Subject, ABC):
@@ -25,6 +27,7 @@ class Tasqq(Subject, ABC):
         self.result: object = []
         self.created_at: datetime = datetime.datetime.now(datetime.timezone.utc)
         self.completed: bool = False
+        self._logger: Logger = get_logger(__name__)
 
     def __eq__(self, o: object) -> bool:
         """
