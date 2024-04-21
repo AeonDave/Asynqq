@@ -1,4 +1,7 @@
 # Asynqq
+
+![pylint]()
+
 Asynqq is a Python library for managing a local queue of asynchronous tasks.
 It allows you to create tasks of your own functions and executed in parallel and asynchronously, all local without external workers.
 This enables an efficient usage of computational resources, facilitating simultaneous operations and thereby improving development agility and time optimization.
