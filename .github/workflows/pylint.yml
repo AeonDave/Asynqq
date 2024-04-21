@@ -13,5 +13,5 @@ jobs:
       - name: Analyze
         uses: Silleellie/pylint-github-action@v2
         with:
-          lint-path: .
+          lint-path: asynqq
           python-version: 3.11
