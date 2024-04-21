@@ -11,4 +11,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Analyze
-        uses: cclauss/GitHub-Action-for-pylint@0.7.0
+        uses: Silleellie/pylint-github-action@v2
+        with:
+          lint-path: .
+          python-version: 3.11
