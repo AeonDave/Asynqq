@@ -1,8 +1,6 @@
 name: Pylint Check Workflow
 
-on:
-  push:
-    branches: [ main ]
+on: [ push, pull_request ]
 
 jobs:
   pylint-check:
