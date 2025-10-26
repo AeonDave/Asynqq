@@ -1,6 +1,6 @@
 # Asynqq
 
-![pylint](https://img.shields.io/badge/PyLint-8.55-yellow?logo=python&logoColor=white)
+![pylint](https://img.shields.io/badge/PyLint-8.59-yellow?logo=python&logoColor=white)
 
 Asynqq is a lightweight task queue tailored for local Python applications. It provides a thin abstraction over `asyncio` and `concurrent.futures` to schedule functions, coroutines, or bound methods on a background pool and consume their results through a unified asynchronous interface. The library ships with an event-driven callback system so applications can react to task lifecycle changes without wiring additional infrastructure.
 
