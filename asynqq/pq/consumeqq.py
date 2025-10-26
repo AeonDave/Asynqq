@@ -29,7 +29,7 @@ class Consumeqq(Thread, Observer):
         self._logger: Logger = get_logger(__name__)
         self._queue: CheckQueue[Tasqq] = CheckQueue()
         self._max_workers: int = max_workers
-        self._stop: bool = False
+        self._should_stop: bool = False
         self._tasks: dict[str, Tasqq] = {}
         self._queue_lock = threading.Lock()
 
@@ -80,7 +80,7 @@ class Consumeqq(Thread, Observer):
         Run the consumer thread.
         """
         self._logger.debug("Starting Asynqq consumer")
-        while not self._stop:
+        while not self._should_stop:
             if 0 < self._max_workers <= self.get_working_size():
                 time.sleep(0.2)
                 continue
@@ -101,7 +101,7 @@ class Consumeqq(Thread, Observer):
         """
         Stop the consumer thread.
         """
-        self._stop = True
+        self._should_stop = True
         self.join()
 
     def event_update(self, subject, event: Event) -> None:

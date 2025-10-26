@@ -125,18 +125,57 @@ class Asynqq(Observer):
         """
 
         def decorator(func):
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                idx = str(get_short_id() if tasqq_id is None else tasqq_id)
-                method = func.__get__(args[0], type(args[0])) if 'self' in inspect.signature(func).parameters else func
-                return self.add(method, idx, callback, **kwargs)
+            signature = inspect.signature(func)
 
-            async def qq_wrapper(*args, **kwargs):
-                w = wrapper(self, *args, **kwargs)
-                r = await w.qq()
-                return r
+            class TaskCallable:
+                def __init__(self):
+                    functools.update_wrapper(self, func)
 
-            wrapper.qq = qq_wrapper
-            return wrapper
+                def _prepare_call(self, *args, **kwargs):
+                    bound = signature.bind_partial(*args, **kwargs)
+                    bound.apply_defaults()
+                    arguments = dict(bound.arguments)
+                    instance = arguments.pop('self', None)
+                    method = func.__get__(instance, type(instance)) if instance is not None else func
+                    return method, arguments
+
+                def __call__(self, *args, **kwargs):
+                    idx = str(get_short_id() if tasqq_id is None else tasqq_id)
+                    method, arguments = self._prepare_call(*args, **kwargs)
+                    return self.add(method, idx, callback, **arguments)
+
+                async def qq(self, *args, **kwargs):
+                    task = self(*args, **kwargs)
+                    return await task.qq()
+
+                def __get__(self, instance, owner=None):
+                    if instance is None:
+                        return self
+
+                    bound_method = func.__get__(instance, owner)
+                    bound_signature = inspect.signature(bound_method)
+
+                    @functools.wraps(func)
+                    def bound(*args, **kwargs):
+                        idx = str(get_short_id() if tasqq_id is None else tasqq_id)
+                        bound_args = bound_signature.bind_partial(*args, **kwargs)
+                        bound_args.apply_defaults()
+                        arguments = dict(bound_args.arguments)
+                        return self.add(bound_method, idx, callback, **arguments)
+
+                    async def bound_qq(*args, **kwargs):
+                        task = bound(*args, **kwargs)
+                        return await task.qq()
+
+                    bound.qq = bound_qq
+                    return bound
+
+                # Ensure descriptor has access to outer Asynqq.add
+                def add(self, method, idx, callback_ref, **call_kwargs):
+                    return self_outer.add(method, idx, callback_ref, **call_kwargs)
+
+            self_outer = self
+            task_callable = TaskCallable()
+            return task_callable
 
         return decorator
