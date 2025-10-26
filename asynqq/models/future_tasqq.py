@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 from asyncio import Future
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
@@ -100,21 +101,14 @@ class FutureTasqq(Tasqq):
         After the task is run, the result event is notified.
         """
         try:
-            if asyncio.iscoroutinefunction(self.func):
-                try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_closed():
-                        raise RuntimeError('loop is closed')
-                except RuntimeError as ex:
-                    self._logger.debug(f'{ex}, creating a new event loop')
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                try:
-                    self.result = loop.run_until_complete(self.func(**self.kwargs))
-                finally:
-                    loop.close()
+            result = self.func(**self.kwargs)
+            if inspect.isawaitable(result):
+                async def _consume(awaitable):
+                    return await awaitable
+
+                self.result = asyncio.run(_consume(result))
             else:
-                self.result = self.func(**self.kwargs)
+                self.result = result
             self.event_notify(
                 Event(
                     self.idx,
